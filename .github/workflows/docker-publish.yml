@@ -7,24 +7,26 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    # 💥 FIX: Using a large runner to provide enough disk space for CUDA layers and pre-downloaded models (IndexTTS, w2v-bert-2.0).
+    runs-on: ubuntu-latest-xlarge 
+    
     steps:
       # Step 1: Check out your repository code
       - name: Checkout
         uses: actions/checkout@v3
-
+        
       # Step 2: Log in to Docker Hub using the secrets we created
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+          
       # Step 3: Build the Docker image and push it to your Docker Hub repository
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/indextts-runpod-template:latest
+          # Note: Using the GITHUB_SHA (first 7 characters) is a good practice for unique tags
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/indextts-runpod-template:latest, ${{ secrets.DOCKERHUB_USERNAME }}/indextts-runpod-template:${{ github.sha }}
