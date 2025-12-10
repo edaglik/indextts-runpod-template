@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     # 💥 FIX: Using a large runner to provide enough disk space for CUDA layers and pre-downloaded models (IndexTTS, w2v-bert-2.0).
-    runs-on: ubuntu-latest-xlarge 
+    runs-on: ubuntu-latest
     
     steps:
       # Step 1: Check out your repository code
