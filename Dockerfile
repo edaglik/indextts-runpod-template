@@ -1,20 +1,27 @@
-# Dockerfile (The only contents should be this for the lightweight image)
+# Use an official, smaller NVIDIA CUDA base image
+FROM nvidia/cuda:12.1.1-devel-ubuntu22.04 
 
-# Step 1: Start from the perfect base image.
-FROM runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404
-
-# Step 2: Set environment variables.
+# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV UV_HTTP_TIMEOUT=300
 ENV UV_LINK_MODE=copy
 ENV HF_HUB_ENABLE_HF_TRANSFER=1
 
-# Step 3: Install only UV (the package manager) and its dependencies.
-# This must be the only layer-creating RUN command apart from the base image.
-RUN pip install uv
+# Install essential system packages needed for subsequent installs
+# This RUN command is now necessary and must be performed here.
+# It also includes installing pip, which is often missing in CUDA images.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-dev \
+    git git-lfs aria2 ffmpeg && \
+    # Install uv immediately for efficiency
+    pip3 install uv && \
+    # Cleanup to save space (CRITICAL)
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Step 4: Set the working directory.
+# Set the working directory
 WORKDIR /workspace
 
-# Step 5: CMD is optional, RunPod overrides it, but a placeholder is fine.
+# CMD is just a placeholder, as the RunPod Start Command handles everything.
 CMD ["sleep", "infinity"]
